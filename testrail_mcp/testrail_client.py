@@ -438,12 +438,16 @@ class TestRailClient:
         return self._send_request('GET', f'get_templates/{project_id}')
 
     def get_case_fields(self) -> List[Dict]:
-        """Get custom case fields."""
+        """Get case fields, including system fields (each with an is_system flag as of TestRail 10.6)."""
         return self._send_request('GET', 'get_case_fields')
 
     def get_result_fields(self) -> List[Dict]:
-        """Get custom result fields."""
+        """Get result fields, including system fields (each with an is_system flag as of TestRail 10.6)."""
         return self._send_request('GET', 'get_result_fields')
+
+    def get_version(self) -> Dict:
+        """Get the TestRail version (added in TestRail 10.6)."""
+        return self._send_request('GET', 'get_version')
 
     def get_case_types(self) -> List[Dict]:
         """Get case types."""

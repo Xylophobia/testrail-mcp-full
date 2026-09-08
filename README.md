@@ -27,7 +27,7 @@ The server exposes tools for these TestRail API groups:
 - Results: get, list by test/run/case with filters, add single and bulk results
 - Datasets: get, list with pagination, add, update, delete
 - Variables: list, add, update, delete
-- Metadata and lookups: templates, case fields, result fields, case types, priorities, test statuses, case statuses, dynamic filter fields
+- Metadata and lookups: templates, case fields, result fields, case types, priorities, test statuses, case statuses, dynamic filter fields, TestRail version
 - Labels: get, list with pagination, update
 - Users: get user, get current user, get by email, list, add, update
 - Configurations: get groups/configurations, add, update, delete

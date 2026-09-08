@@ -1255,15 +1255,20 @@ class TestRailMCPServer(FastMCP):
             """Get templates for a project."""
             return self.client.get_templates(project_id)
 
-        @self.tool("get_case_fields", description="Get custom case fields")
+        @self.tool("get_case_fields", description="Get case fields, including system fields (each with an is_system flag)")
         def get_case_fields() -> List[Dict]:
-            """Get custom case fields."""
+            """Get case fields, including system fields (each with an is_system flag)."""
             return self.client.get_case_fields()
 
-        @self.tool("get_result_fields", description="Get custom result fields")
+        @self.tool("get_result_fields", description="Get result fields, including system fields (each with an is_system flag)")
         def get_result_fields() -> List[Dict]:
-            """Get custom result fields."""
+            """Get result fields, including system fields (each with an is_system flag)."""
             return self.client.get_result_fields()
+
+        @self.tool("get_version", description="Get the TestRail version")
+        def get_version() -> Dict:
+            """Get the TestRail version."""
+            return self.client.get_version()
 
         @self.tool("get_case_types", description="Get case types")
         def get_case_types() -> List[Dict]:

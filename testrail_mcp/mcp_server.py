@@ -602,11 +602,8 @@ class TestRailMCPServer(FastMCP):
                     - expected: The text contents of the "Expected Result" field
                     - additional_info: The text contents of the "Additional Info" field
                     - refs: Reference information for the "References" field
-                steps_separated: A list of test steps (optional), each with fields:
-                    - content: The text contents of the "Step" field
-                    - expected: The text contents of the "Expected Result" field
-                    - additional_info: The text contents of the "Additional Info" field
-                    - refs: Reference information for the "References" field
+                steps_separated: Alias for custom_steps_separated (optional). Ignored if
+                    custom_steps_separated is also provided.
             """
             data = {'title': title}
             if template_id is not None:
@@ -625,8 +622,12 @@ class TestRailMCPServer(FastMCP):
                 data['labels'] = labels
             if custom_steps_separated is not None:
                 data['custom_steps_separated'] = custom_steps_separated
-            if steps_separated is not None:
-                data['steps_separated'] = steps_separated
+            elif steps_separated is not None:
+                # TestRail's API has no `steps_separated` field - only `custom_steps_separated`
+                # (custom fields require the `custom_` prefix). Writing `steps_separated` as its
+                # own payload key is silently ignored by the API (200 OK, nothing saved), so this
+                # parameter is treated as an alias into the real field instead.
+                data['custom_steps_separated'] = steps_separated
             if custom_steps is not None:
                 data['custom_steps'] = custom_steps
             if custom_expected is not None:
@@ -667,11 +668,8 @@ class TestRailMCPServer(FastMCP):
                     - expected: The text contents of the "Expected Result" field
                     - additional_info: The text contents of the "Additional Info" field
                     - refs: Reference information for the "References" field
-                steps_separated: A list of test steps (optional), each with fields:
-                    - content: The text contents of the "Step" field
-                    - expected: The text contents of the "Expected Result" field
-                    - additional_info: The text contents of the "Additional Info" field
-                    - refs: Reference information for the "References" field
+                steps_separated: Alias for custom_steps_separated (optional). Ignored if
+                    custom_steps_separated is also provided.
             """
             data = {}
             if title is not None:
@@ -694,8 +692,12 @@ class TestRailMCPServer(FastMCP):
                 data['labels'] = labels
             if custom_steps_separated is not None:
                 data['custom_steps_separated'] = custom_steps_separated
-            if steps_separated is not None:
-                data['steps_separated'] = steps_separated
+            elif steps_separated is not None:
+                # TestRail's API has no `steps_separated` field - only `custom_steps_separated`
+                # (custom fields require the `custom_` prefix). Writing `steps_separated` as its
+                # own payload key is silently ignored by the API (200 OK, nothing saved), so this
+                # parameter is treated as an alias into the real field instead.
+                data['custom_steps_separated'] = steps_separated
             if custom_steps is not None:
                 data['custom_steps'] = custom_steps
             if custom_expected is not None:

@@ -1,6 +1,7 @@
 """TestRail API client module."""
 import base64
 import json
+import mimetypes
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlencode
@@ -117,10 +118,18 @@ class TestRailClient:
         return response.json() if response.content else {}
 
     def _upload_attachment(self, uri: str, file_path: str) -> Dict[str, Any]:
-        """Upload an attachment using multipart/form-data."""
+        """Upload an attachment using multipart/form-data.
+
+        The content type is guessed from the file's extension and sent explicitly.
+        Without it, TestRail does not reliably treat the upload as a displayable
+        image - it can land as a generic/downloadable attachment instead of a
+        picture rendered inline in the case, even though the upload itself
+        succeeds with no error.
+        """
         path = Path(file_path)
+        content_type = mimetypes.guess_type(path.name)[0] or 'application/octet-stream'
         with path.open('rb') as handle:
-            files = {'attachment': (path.name, handle)}
+            files = {'attachment': (path.name, handle, content_type)}
             return self._send_request('POST', uri, files=files)
 
     # Cases API

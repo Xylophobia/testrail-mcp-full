@@ -176,6 +176,19 @@ class TestRailMCPServer(FastMCP):
             if value is not None:
                 data[key] = value
 
+        def _merge_custom_fields(data: Dict[str, Any], custom_fields: Optional[Dict[str, Any]]) -> None:
+            """Copy caller-supplied custom case fields (e.g. custom_manual_automated) into the payload.
+
+            TestRail silently ignores unknown keys (200 OK, nothing saved), so only `custom_*`
+            system names are accepted and anything else is rejected rather than dropped.
+            """
+            if not custom_fields:
+                return
+            bad = [key for key in custom_fields if not key.startswith('custom_')]
+            if bad:
+                raise ValueError(f"custom_fields keys must start with 'custom_': {', '.join(bad)}")
+            data.update(custom_fields)
+
         def _merge_payload(base: Optional[Dict[str, Any]] = None, extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
             """Merge explicit MCP arguments with an optional raw payload override."""
             payload = dict(base or {})
@@ -582,7 +595,9 @@ class TestRailMCPServer(FastMCP):
             custom_steps: Optional[str] = None,
             custom_expected: Optional[str] = None,
             custom_steps_separated: Optional[List[Dict[str, str]]] = None,
-            steps_separated: Optional[List[Dict[str, str]]] = None
+            steps_separated: Optional[List[Dict[str, str]]] = None,
+            custom_preconds: Optional[str] = None,
+            custom_fields: Optional[Dict[str, Any]] = None
         ) -> Dict:
             """
             Add a new test case.
@@ -604,6 +619,9 @@ class TestRailMCPServer(FastMCP):
                     - refs: Reference information for the "References" field
                 steps_separated: Alias for custom_steps_separated (optional). Ignored if
                     custom_steps_separated is also provided.
+                custom_preconds: The "Preconditions" field (optional)
+                custom_fields: Any other custom case fields by system name (optional), e.g.
+                    {"custom_manual_automated": 1}. Every key must start with "custom_".
             """
             data = {'title': title}
             if template_id is not None:
@@ -632,6 +650,9 @@ class TestRailMCPServer(FastMCP):
                 data['custom_steps'] = custom_steps
             if custom_expected is not None:
                 data['custom_expected'] = custom_expected
+            if custom_preconds is not None:
+                data['custom_preconds'] = custom_preconds
+            _merge_custom_fields(data, custom_fields)
             return self.client.add_case(section_id, data)
         
         @self.tool("update_case", description="Update an existing test case")
@@ -649,7 +670,9 @@ class TestRailMCPServer(FastMCP):
             custom_steps: Optional[str] = None,
             custom_expected: Optional[str] = None,
             custom_steps_separated: Optional[List[Dict[str, str]]] = None,
-            steps_separated: Optional[List[Dict[str, str]]] = None
+            steps_separated: Optional[List[Dict[str, str]]] = None,
+            custom_preconds: Optional[str] = None,
+            custom_fields: Optional[Dict[str, Any]] = None
         ) -> Dict:
             """
             Update an existing test case.
@@ -670,6 +693,9 @@ class TestRailMCPServer(FastMCP):
                     - refs: Reference information for the "References" field
                 steps_separated: Alias for custom_steps_separated (optional). Ignored if
                     custom_steps_separated is also provided.
+                custom_preconds: The "Preconditions" field (optional)
+                custom_fields: Any other custom case fields by system name (optional), e.g.
+                    {"custom_manual_automated": 1}. Every key must start with "custom_".
             """
             data = {}
             if title is not None:
@@ -702,6 +728,9 @@ class TestRailMCPServer(FastMCP):
                 data['custom_steps'] = custom_steps
             if custom_expected is not None:
                 data['custom_expected'] = custom_expected
+            if custom_preconds is not None:
+                data['custom_preconds'] = custom_preconds
+            _merge_custom_fields(data, custom_fields)
             return self.client.update_case(case_id, data)
         
         @self.tool("delete_case", description="Delete a test case")
